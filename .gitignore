@@ -1,0 +1,38 @@
+# Diretórios e arquivos do Composer
+/vendor/
+composer.phar
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Configurações de IDEs
+.idea/
+*.sublime-project
+*.sublime-workspace
+.vscode/
+*.code-workspace
+
+# Arquivos de log e cache
+*.log
+*.cache
+*.tmp
+
+# Arquivos de ambiente
+.env
+.env.*.local
+.env.local.php
+
+# Arquivos do sistema operacional
+*.bak
+*.old
+*.swp
+*~
+
+# Cache do PHPUnit
+.phpunit.result.cache
+
+# Diretórios específicos do projeto (ajuste se necessário)
+/node_modules/
+/build/
+/dist/
