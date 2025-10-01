@@ -1,10 +1,11 @@
 // LL Magazine - JavaScript for Virtual Storefront
 
-// Configuration
-const CONFIG = {
-    whatsappNumber: '5534991738581', 
+// Configuration (will be loaded from API)
+let CONFIG = {
+    whatsappNumber: '5534991738581',
     whatsappMessage: 'Olá! Gostaria de saber mais sobre este produto da LL Magazine:',
-    apiUrl: 'api/products.php'
+    apiUrl: 'api/products.php',
+    siteName: 'LL Magazine'
 };
 
 // Global variables
@@ -29,10 +30,26 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
 
-function initializeApp() {
+async function initializeApp() {
+    await loadConfig();
     loadProducts();
     setupEventListeners();
     setupHeroCarousel();
+}
+
+// Load configuration from API
+async function loadConfig() {
+    try {
+        const response = await fetch(CONFIG.apiUrl + '?config=1');
+        if (response.ok) {
+            const config = await response.json();
+            CONFIG.whatsappNumber = config.whatsappNumber || CONFIG.whatsappNumber;
+            CONFIG.whatsappMessage = config.whatsappMessage || CONFIG.whatsappMessage;
+            CONFIG.siteName = config.siteName || CONFIG.siteName;
+        }
+    } catch (error) {
+        console.warn('Failed to load config from API, using defaults:', error);
+    }
 }
 
 // Event Listeners

@@ -45,11 +45,50 @@ body {
     display: none;
 }
 
-.logo h1 {
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.logo-text {
+    text-align: center;
+}
+
+.logo-text h1 {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin: 0;
+    line-height: 1;
+}
+
+.logo-ll {
+    font-family: 'Dancing Script', cursive;
+    font-size: 36px;
+    font-weight: 700;
     color: #dc2626;
+    letter-spacing: 2px;
+}
+
+.logo-magazine {
+    font-family: 'Montserrat', sans-serif;
     font-size: 28px;
     font-weight: 700;
-    letter-spacing: -0.5px;
+    color: #dc2626;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.logo-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #dc2626;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 2px 0 0 0;
 }
 
 .header-actions {
@@ -453,10 +492,19 @@ body {
     border-bottom: 1px solid #eee;
 }
 
+.mobile-menu-header .logo-text {
+    text-align: left;
+}
+
 .mobile-menu-header h3 {
     color: #dc2626;
     font-size: 24px;
     font-weight: 700;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    margin: 0;
+    line-height: 1;
 }
 
 .close-menu {
@@ -499,13 +547,22 @@ body {
     .menu-toggle {
         display: block;
     }
-    
+
     .header-actions {
         gap: 15px;
     }
-    
-    .logo h1 {
-        font-size: 24px;
+
+    .logo-ll {
+        font-size: 28px;
+    }
+
+    .logo-magazine {
+        font-size: 22px;
+    }
+
+    .logo-subtitle {
+        font-size: 9px;
+        letter-spacing: 1.5px;
     }
     
     .hero {
@@ -545,11 +602,24 @@ body {
     .container {
         padding: 0 15px;
     }
-    
+
+    .logo-ll {
+        font-size: 24px;
+    }
+
+    .logo-magazine {
+        font-size: 18px;
+    }
+
+    .logo-subtitle {
+        font-size: 8px;
+        letter-spacing: 1px;
+    }
+
     .hero {
         padding: 80px 0 30px;
     }
-    
+
     .collection-title {
         font-size: 28px;
     }

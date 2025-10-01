@@ -1,24 +1,64 @@
 <?php
 // LL Magazine - Configuration File
-// Configurações para hospedagem na GoDaddy
+// Loads configuration from .env file
 
-// Database Configuration
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'll_magazine_db');
-define('DB_USER', 'your_username'); // Substitua pelo seu usuário do GoDaddy
-define('DB_PASS', 'your_password'); // Substitua pela sua senha do GoDaddy
+// Load .env file
+function loadEnv($path = '.env') {
+    if (!file_exists($path)) {
+        throw new Exception('.env file not found. Please copy .env.example to .env and configure it.');
+    }
+
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        // Skip comments
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+
+        // Parse key=value
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+
+            // Remove quotes if present
+            $value = trim($value, '"\'');
+
+            // Set as environment variable and define constant
+            putenv("$key=$value");
+            $_ENV[$key] = $value;
+
+            if (!defined($key)) {
+                define($key, $value);
+            }
+        }
+    }
+}
+
+// Load environment variables
+loadEnv(__DIR__ . '/.env');
+
+// Database Configuration (already defined by loadEnv, but set defaults if not present)
+if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_NAME')) define('DB_NAME', 'll_magazine_db');
+if (!defined('DB_USER')) define('DB_USER', 'root');
+if (!defined('DB_PASS')) define('DB_PASS', '');
 
 // Site Configuration
-define('SITE_NAME', 'LL Magazine');
-define('SITE_URL', 'https://yourdomain.com'); // Substitua pelo seu domínio
-define('SITE_EMAIL', 'contato@yourdomain.com'); // Substitua pelo seu email
+if (!defined('SITE_NAME')) define('SITE_NAME', 'LL Magazine');
+if (!defined('SITE_URL')) define('SITE_URL', 'http://localhost:8080');
+if (!defined('SITE_EMAIL')) define('SITE_EMAIL', 'contato@llmagazine.com');
 
 // WhatsApp Configuration
-define('WHATSAPP_NUMBER', '5511999999999'); // Substitua pelo seu número
-define('WHATSAPP_MESSAGE', 'Olá! Gostaria de saber mais sobre este produto da LL Magazine:');
+if (!defined('WHATSAPP_NUMBER')) define('WHATSAPP_NUMBER', '5534991738581');
+if (!defined('WHATSAPP_MESSAGE')) define('WHATSAPP_MESSAGE', 'Olá! Gostaria de saber mais sobre este produto da LL Magazine:');
+
+// Environment
+if (!defined('APP_ENV')) define('APP_ENV', 'development');
+define('DEBUG_MODE', APP_ENV === 'development');
 
 // Security Configuration
-define('ENABLE_HTTPS', true);
+define('ENABLE_HTTPS', APP_ENV === 'production');
 define('ENABLE_CORS', true);
 define('RATE_LIMIT_REQUESTS', 100);
 define('RATE_LIMIT_WINDOW', 300); // 5 minutes
@@ -27,14 +67,7 @@ define('RATE_LIMIT_WINDOW', 300); // 5 minutes
 define('MAX_FILE_SIZE', 5 * 1024 * 1024); // 5MB
 define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'webp']);
 
-// Email Configuration (for contact forms)
-define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_PORT', 587);
-define('SMTP_USER', 'your-email@gmail.com');
-define('SMTP_PASS', 'your-app-password');
-
 // Development/Production Mode
-define('DEBUG_MODE', false); // Set to true for development
 define('LOG_ERRORS', true);
 
 // Cache Configuration
@@ -49,12 +82,6 @@ define('API_RATE_LIMIT', 1000); // requests per hour
 define('INSTAGRAM_URL', 'https://instagram.com/llmagazine');
 define('FACEBOOK_URL', 'https://facebook.com/llmagazine');
 define('WHATSAPP_URL', 'https://wa.me/' . WHATSAPP_NUMBER);
-
-// Business Information
-define('BUSINESS_NAME', 'LL Magazine');
-define('BUSINESS_ADDRESS', 'Sua Rua, 123 - Seu Bairro - Sua Cidade/SP');
-define('BUSINESS_PHONE', '+55 11 99999-9999');
-define('BUSINESS_CNPJ', '00.000.000/0001-00');
 
 // Timezone
 date_default_timezone_set('America/Sao_Paulo');
@@ -100,7 +127,7 @@ function getConfig($key, $default = null) {
 
 // Function to check if running in production
 function isProduction() {
-    return !DEBUG_MODE;
+    return APP_ENV === 'production';
 }
 
 // Function to get full URL
@@ -117,17 +144,17 @@ function getWhatsAppUrl($message = '') {
 // Function to log errors
 function logError($message, $context = []) {
     if (!LOG_ERRORS) return;
-    
-    $logFile = 'logs/error.log';
+
+    $logFile = __DIR__ . '/logs/error.log';
     $timestamp = date('Y-m-d H:i:s');
     $contextStr = !empty($context) ? ' | Context: ' . json_encode($context) : '';
     $logMessage = "[$timestamp] $message$contextStr" . PHP_EOL;
-    
+
     // Create logs directory if it doesn't exist
-    if (!file_exists('logs')) {
-        mkdir('logs', 0755, true);
+    if (!file_exists(__DIR__ . '/logs')) {
+        mkdir(__DIR__ . '/logs', 0755, true);
     }
-    
+
     file_put_contents($logFile, $logMessage, FILE_APPEND | LOCK_EX);
 }
 
@@ -152,6 +179,28 @@ function generateCSRFToken() {
 // Function to verify CSRF token
 function verifyCSRFToken($token) {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
+
+// Database connection function
+function getDBConnection() {
+    static $pdo = null;
+
+    if ($pdo === null) {
+        try {
+            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false,
+            ];
+            $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+        } catch (PDOException $e) {
+            logError('Database connection failed: ' . $e->getMessage());
+            throw new Exception('Database connection failed');
+        }
+    }
+
+    return $pdo;
 }
 
 // Start session

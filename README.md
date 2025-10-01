@@ -43,13 +43,16 @@ ll-magazine/
 
 ### Desenvolvimento Local
 - **PHP**: 7.4 ou superior
+- **MySQL**: 5.7+ ou superior
+- **Extensões PHP**: PDO, pdo_mysql, mysqli, json, mbstring
 - **Python**: 3.6+ (para gerar imagens)
 - **PIL/Pillow**: Para processamento de imagens
 - **Apache**: 2.4+ (opcional, para ambiente de produção)
 
 ### Produção (GoDaddy)
 - **PHP**: 7.4 ou superior
-- **MySQL**: 5.7+ (opcional)
+- **MySQL**: 5.7+ ou superior
+- **Extensões PHP**: PDO, pdo_mysql habilitadas
 - **HTTPS**: Certificado SSL
 
 ### Instalação de Dependências
@@ -57,19 +60,50 @@ ll-magazine/
 ```bash
 # Ubuntu/Debian
 sudo apt update
-sudo apt install php php-cli python3 python3-pip apache2
+sudo apt install php php-cli php-mysql php-mbstring mysql-server python3 python3-pip apache2
 
 # Instalar Pillow para Python
 pip3 install Pillow
 
 # Verificar instalação
 php -v
+php -m | grep -i mysql  # Deve mostrar pdo_mysql, mysqli, mysqlnd
 python3 --version
 ```
 
 ## 🛠️ Instalação e Configuração
 
-### 1. Desenvolvimento Local
+### 1. Configurar Ambiente
+
+**Passo 1: Copiar arquivo de configuração**
+```bash
+cp .env.example .env
+```
+
+**Passo 2: Editar `.env` com suas credenciais**
+```env
+DB_HOST=localhost
+DB_NAME=ll_magazine_db
+DB_USER=root
+DB_PASS=sua_senha_mysql
+WHATSAPP_NUMBER=5534991738581
+```
+
+**Passo 3: Criar banco de dados**
+```bash
+# Opção automática (recomendado)
+./database/setup.sh
+
+# Opção manual
+mysql -u root -p
+CREATE DATABASE ll_magazine_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE ll_magazine_db;
+SOURCE database/schema.sql;
+SOURCE database/seed.sql;
+EXIT;
+```
+
+### 2. Desenvolvimento Local
 
 #### Opção A: Servidor PHP Embutido (Recomendado para desenvolvimento)
 
@@ -245,7 +279,32 @@ python3 create_images.py
 
 ### Problemas Comuns
 
-**1. Imagens não carregam:**
+**1. Erro "Database connection failed" ou "could not find driver":**
+```bash
+# Verificar se extensão MySQL está instalada
+php -m | grep -i mysql
+
+# Se não aparecer pdo_mysql, instalar:
+sudo apt install php-mysql
+
+# Reiniciar servidor PHP
+pkill -f "php -S"
+php -S localhost:8080
+```
+
+**2. Produtos não aparecem na página:**
+```bash
+# Verificar se banco existe e tem dados
+mysql -u root -p -e "USE ll_magazine_db; SELECT COUNT(*) FROM products;"
+
+# Verificar se .env está configurado corretamente
+cat .env | grep DB_
+
+# Testar API diretamente
+curl http://localhost:8080/api/products.php
+```
+
+**3. Imagens não carregam:**
 ```bash
 # Verificar se as imagens existem
 ls -la assets/images/products/
