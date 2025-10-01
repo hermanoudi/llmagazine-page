@@ -60,6 +60,17 @@ else
     exit 1
 fi
 
+# Import admin schema
+echo ""
+echo "Importing admin users schema..."
+mysql -h "$DB_HOST" -u root -p"$MYSQL_ROOT_PASS" "$DB_NAME" < database/admin_schema.sql 2>/dev/null
+
+if [ $? -eq 0 ]; then
+    echo "✓ Admin schema imported successfully"
+else
+    echo "⚠ Warning: Failed to import admin schema (may already exist)"
+fi
+
 # Grant privileges if needed
 if [ "$DB_USER" != "root" ]; then
     echo ""
@@ -77,6 +88,15 @@ fi
 echo ""
 echo "=== Database setup complete! ==="
 echo ""
-echo "You can now start the development server:"
+echo "Access information:"
+echo "  Site: http://localhost:8080"
+echo "  Admin: http://localhost:8080/admin/login.html"
+echo ""
+echo "Default admin credentials:"
+echo "  Username: admin"
+echo "  Password: admin123"
+echo "  ⚠️  CHANGE THE PASSWORD AFTER FIRST LOGIN!"
+echo ""
+echo "Start the development server:"
 echo "  php -S localhost:8080"
 echo ""
