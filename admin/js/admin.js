@@ -96,6 +96,9 @@ function setupEventListeners() {
             closeProductModal();
         }
     });
+
+    // Image upload preview
+    document.getElementById('productImageFile').addEventListener('change', handleImageSelect);
 }
 
 function switchPage(pageName) {
@@ -130,8 +133,6 @@ function logout() {
 async function loadProducts() {
     showLoading(true);
     try {
-        console.log('Loading products with token:', authToken ? 'Token present' : 'No token');
-
         const response = await fetch('../api/admin/products.php', {
             method: 'GET',
             headers: {
@@ -139,15 +140,10 @@ async function loadProducts() {
             }
         });
 
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
-
         const data = await response.json();
-        console.log('Response data:', data);
 
         if (data.success) {
             products = data.products;
-            console.log('Loaded products:', products.length);
             renderProductsTable();
         } else {
             showAlert('Erro ao carregar produtos: ' + data.error, 'error');
@@ -216,6 +212,7 @@ function openProductModal(productId = null) {
     const title = document.getElementById('modalTitle');
 
     form.reset();
+    document.getElementById('imagePreview').style.display = 'none';
 
     if (productId) {
         // Edit mode
@@ -231,10 +228,22 @@ function openProductModal(productId = null) {
             document.getElementById('productDiscount').value = product.discount || '';
             document.getElementById('productImage').value = product.image;
             document.getElementById('productDescription').value = product.description;
-            document.getElementById('productColors').value = product.colors ? product.colors.join(', ') : '';
+
+            // Convert hex colors to names for display
+            const colorNames = product.colors ? product.colors.map(hex => hexToColorName(hex)) : [];
+            document.getElementById('productColors').value = colorNames.join(', ');
+
             document.getElementById('productSizes').value = product.sizes ? product.sizes.join(', ') : '';
             document.getElementById('productInStock').checked = product.inStock;
             document.getElementById('productFeatured').checked = product.featured;
+
+            // Show existing image preview
+            if (product.image) {
+                const preview = document.getElementById('imagePreview');
+                const previewImg = document.getElementById('previewImg');
+                previewImg.src = '../' + product.image;
+                preview.style.display = 'block';
+            }
         }
     } else {
         // Create mode
@@ -247,34 +256,111 @@ function openProductModal(productId = null) {
 
 function closeProductModal() {
     document.getElementById('productModal').classList.remove('active');
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('productImageFile').value = '';
     editingProductId = null;
+}
+
+function handleImageSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const preview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        previewImg.src = event.target.result;
+        preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+async function uploadImage(file) {
+    console.log('Uploading file:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+    });
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch('../api/admin/upload.php', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${authToken}`
+        },
+        body: formData
+    });
+
+    const responseText = await response.text();
+    console.log('Upload raw response:', responseText);
+
+    let data;
+    try {
+        data = JSON.parse(responseText);
+    } catch (e) {
+        console.error('Failed to parse JSON:', e);
+        throw new Error('Erro no servidor: ' + responseText.substring(0, 200));
+    }
+
+    console.log('Upload response:', data);
+
+    if (!data.success) {
+        const errorMsg = data.error || 'Falha ao fazer upload da imagem';
+        const debugInfo = data.debug ? JSON.stringify(data.debug) : '';
+        throw new Error(errorMsg + (debugInfo ? ' - ' + debugInfo : ''));
+    }
+
+    return data.path;
 }
 
 async function handleProductSubmit(e) {
     e.preventDefault();
 
-    const productData = {
-        name: document.getElementById('productName').value,
-        category: document.getElementById('productCategory').value,
-        price: document.getElementById('productPrice').value,
-        originalPrice: document.getElementById('productOriginalPrice').value || null,
-        discount: document.getElementById('productDiscount').value || null,
-        image: document.getElementById('productImage').value,
-        description: document.getElementById('productDescription').value,
-        colors: document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c),
-        sizes: document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s),
-        inStock: document.getElementById('productInStock').checked ? 1 : 0,
-        featured: document.getElementById('productFeatured').checked ? 1 : 0
-    };
-
     showLoading(true);
 
     try {
-        const isEdit = editingProductId !== null;
+        // Handle image upload if new image selected
+        let imagePath = document.getElementById('productImage').value;
+        const imageFile = document.getElementById('productImageFile').files[0];
+
+        if (imageFile) {
+            imagePath = await uploadImage(imageFile);
+        }
+
+        if (!imagePath) {
+            showAlert('Imagem é obrigatória', 'error');
+            showLoading(false);
+            return;
+        }
+
+        // Convert color names to hex codes
+        const colorNames = document.getElementById('productColors').value.split(',').map(c => c.trim()).filter(c => c);
+        const colorHexCodes = colorNamesToHex(colorNames);
+
+        const productData = {
+            name: document.getElementById('productName').value,
+            category: document.getElementById('productCategory').value,
+            price: document.getElementById('productPrice').value,
+            originalPrice: document.getElementById('productOriginalPrice').value || null,
+            discount: document.getElementById('productDiscount').value || null,
+            image: imagePath,
+            description: document.getElementById('productDescription').value,
+            colors: colorHexCodes,
+            sizes: document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s),
+            inStock: document.getElementById('productInStock').checked ? 1 : 0,
+            featured: document.getElementById('productFeatured').checked ? 1 : 0
+        };
+
+        const isEdit = editingProductId !== null && editingProductId !== undefined;
         const url = isEdit
             ? `../api/admin/products.php/${editingProductId}`
             : '../api/admin/products.php';
         const method = isEdit ? 'PUT' : 'POST';
+
+        console.log('Submitting product:', { isEdit, editingProductId, url, method });
 
         const response = await fetch(url, {
             method: method,
@@ -286,6 +372,7 @@ async function handleProductSubmit(e) {
         });
 
         const data = await response.json();
+        console.log('Server response:', data);
 
         if (data.success) {
             showAlert(data.message || 'Produto salvo com sucesso!', 'success');
@@ -296,7 +383,7 @@ async function handleProductSubmit(e) {
         }
     } catch (error) {
         console.error('Save product error:', error);
-        showAlert('Erro ao salvar produto', 'error');
+        showAlert('Erro ao salvar produto: ' + error.message, 'error');
     } finally {
         showLoading(false);
     }

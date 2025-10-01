@@ -46,11 +46,23 @@ $method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $pathParts = explode('/', trim($path, '/'));
 
+// Find product ID in path (last numeric part)
+$productId = null;
+for ($i = count($pathParts) - 1; $i >= 0; $i--) {
+    if (is_numeric($pathParts[$i])) {
+        $productId = (int)$pathParts[$i];
+        break;
+    }
+}
+
+// Debug logging
+error_log("API Debug - Method: $method, Path: $path, Product ID: " . ($productId ?? 'none'));
+
 // Route handling
 switch ($method) {
     case 'GET':
-        if (isset($pathParts[3]) && is_numeric($pathParts[3])) {
-            getProduct($pdo, (int)$pathParts[3]);
+        if ($productId) {
+            getProduct($pdo, $productId);
         } else {
             getAllProducts($pdo);
         }
@@ -61,20 +73,26 @@ switch ($method) {
         break;
 
     case 'PUT':
-        if (isset($pathParts[3]) && is_numeric($pathParts[3])) {
-            updateProduct($pdo, (int)$pathParts[3]);
+        if ($productId) {
+            updateProduct($pdo, $productId);
         } else {
             http_response_code(400);
-            echo json_encode(['error' => 'Product ID required']);
+            echo json_encode([
+                'error' => 'Product ID required',
+                'debug' => ['path' => $path, 'pathParts' => $pathParts]
+            ]);
         }
         break;
 
     case 'DELETE':
-        if (isset($pathParts[3]) && is_numeric($pathParts[3])) {
-            deleteProduct($pdo, (int)$pathParts[3]);
+        if ($productId) {
+            deleteProduct($pdo, $productId);
         } else {
             http_response_code(400);
-            echo json_encode(['error' => 'Product ID required']);
+            echo json_encode([
+                'error' => 'Product ID required',
+                'debug' => ['path' => $path, 'pathParts' => $pathParts]
+            ]);
         }
         break;
 

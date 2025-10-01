@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function initializeApp() {
     await loadConfig();
-    loadProducts();
+    await loadProducts();
     setupEventListeners();
     setupHeroCarousel();
 }
@@ -106,31 +106,67 @@ function closeMobileMenu() {
 
 // Hero Carousel
 function setupHeroCarousel() {
-    const heroImages = [
-        'assets/images/hero-model.jpg',
-        'assets/images/hero-model-2.jpg',
-        'assets/images/hero-model-3.jpg'
-    ];
-    
+    // Get featured products or fallback to default images
+    const featuredProducts = products.filter(p => p.featured);
+
+    let heroImages = [];
+
+    if (featuredProducts.length > 0) {
+        // Use featured product images
+        heroImages = featuredProducts.map(p => p.image);
+    } else {
+        // Fallback to default hero images
+        heroImages = [
+            'assets/images/hero-model.jpg',
+            'assets/images/hero-model-2.jpg',
+            'assets/images/hero-model-3.jpg'
+        ];
+    }
+
     let currentSlide = 0;
     const heroImage = document.getElementById('heroImage');
     const indicators = document.querySelectorAll('.indicator');
-    
+
+    // Update indicators to match number of slides
+    const indicatorsContainer = document.querySelector('.carousel-indicators');
+    if (indicatorsContainer && heroImages.length !== indicators.length) {
+        indicatorsContainer.innerHTML = heroImages.map((_, i) =>
+            `<button class="indicator ${i === 0 ? 'active' : ''}" data-slide="${i}"></button>`
+        ).join('');
+
+        // Re-attach event listeners
+        document.querySelectorAll('.indicator').forEach((indicator, index) => {
+            indicator.addEventListener('click', function() {
+                showHeroSlide(index);
+            });
+        });
+    }
+
     function showSlide(index) {
         if (heroImages[index]) {
             heroImage.src = heroImages[index];
+
+            // Add click event to hero image for featured products
+            if (featuredProducts.length > 0) {
+                heroImage.style.cursor = 'pointer';
+                heroImage.onclick = () => openProductModal(featuredProducts[index]);
+            }
         }
-        
-        indicators.forEach((indicator, i) => {
+
+        const currentIndicators = document.querySelectorAll('.indicator');
+        currentIndicators.forEach((indicator, i) => {
             indicator.classList.toggle('active', i === index);
         });
     }
-    
-    function showHeroSlide(index) {
+
+    window.showHeroSlide = function(index) {
         currentSlide = index;
         showSlide(currentSlide);
     }
-    
+
+    // Show first slide
+    showSlide(0);
+
     // Auto-advance carousel
     setInterval(() => {
         currentSlide = (currentSlide + 1) % heroImages.length;
