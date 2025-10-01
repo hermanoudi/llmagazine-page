@@ -23,20 +23,44 @@ Site responsivo para vitrine virtual de loja de roupas, desenvolvido com HTML5, 
 ```
 ll-magazine/
 ├── index.html              # Página principal
+├── config.php             # Configurações e conexão BD
+├── .env.example           # Template de variáveis de ambiente
 ├── .htaccess              # Configurações Apache
 ├── 404.html               # Página de erro 404
 ├── 500.html               # Página de erro 500
 ├── README.md              # Documentação
+├── admin/                 # Painel Administrativo
+│   ├── index.html         # Dashboard do admin
+│   ├── login.html         # Tela de login
+│   ├── css/
+│   │   └── admin.css      # Estilos do painel admin
+│   └── js/
+│       ├── admin.js       # Lógica do painel admin
+│       └── login.js       # Lógica de autenticação
 ├── assets/
 │   ├── css/
 │   │   └── style.css      # Estilos principais
 │   ├── js/
-│   │   └── script.js      # JavaScript principal
+│   │   ├── script.js      # JavaScript principal
+│   │   └── color-mapping.js # Mapeamento de cores
 │   └── images/
 │       ├── products/      # Imagens dos produtos
 │       └── hero-model.jpg # Imagem do banner
-└── api/
-    └── products.php       # API de produtos
+├── api/
+│   ├── products.php       # API pública de produtos
+│   ├── auth.php           # API de autenticação
+│   ├── JWT.php            # Gerenciamento de tokens JWT
+│   └── admin/
+│       ├── products.php   # CRUD de produtos (protegido)
+│       └── upload.php     # Upload de imagens (protegido)
+├── database/
+│   ├── schema.sql         # Estrutura do banco
+│   ├── seed.sql           # Dados iniciais
+│   ├── admin_schema.sql   # Tabela de usuários admin
+│   └── setup.sh           # Script de setup automático
+└── docs/
+    ├── install_to_godaddy.md  # Guia de deploy
+    └── admin_guide.md         # Guia do painel admin
 ```
 
 ## 📋 Requisitos do Sistema
@@ -100,8 +124,14 @@ CREATE DATABASE ll_magazine_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE ll_magazine_db;
 SOURCE database/schema.sql;
 SOURCE database/seed.sql;
+SOURCE database/admin_schema.sql;
 EXIT;
 ```
+
+**Credenciais padrão do admin:**
+- **Usuário:** `admin`
+- **Senha:** `admin123`
+- **⚠️ IMPORTANTE:** Altere a senha após o primeiro login!
 
 ### 2. Desenvolvimento Local
 
@@ -116,6 +146,7 @@ php -S localhost:8080
 
 # Acesse no navegador
 # Site: http://localhost:8080
+# Painel Admin: http://localhost:8080/admin/login.html
 # API: http://localhost:8080/api/products.php
 ```
 
@@ -206,24 +237,39 @@ Modifique o array `$categories` em `api/products.php` para alterar as categorias
 
 ## 📱 Funcionalidades
 
-### Frontend
+### Frontend (Vitrine)
 - ✅ Design responsivo
 - ✅ Menu mobile
-- ✅ Carrossel de imagens
+- ✅ Carrossel de imagens com produtos em destaque
 - ✅ Filtro por categorias
 - ✅ Modal de detalhes do produto
-- ✅ Favoritos (localStorage)
 - ✅ Integração WhatsApp
 - ✅ Lazy loading de imagens
 - ✅ Animações suaves
 
-### Backend
-- ✅ API REST para produtos
+### Painel Administrativo
+- ✅ **Autenticação JWT** - Login seguro com tokens
+- ✅ **Gerenciamento de Produtos** - CRUD completo
+- ✅ **Upload de Imagens** - Upload direto pelo painel (JPG, PNG, GIF, WEBP, AVIF)
+- ✅ **Sistema de Cores** - Nomes de cores em português (50+ cores)
+- ✅ **Produtos em Destaque** - Exibidos no carrossel hero
+- ✅ **Categorização** - Looks, Masculino, Feminino, Infantil, Presentes
+- ✅ **Controle de Estoque** - Marcar produtos como disponíveis/esgotados
+- ✅ **Descontos** - Sistema de preço original e desconto
+- ✅ **Alteração de Senha** - Trocar senha do administrador
+- ✅ **Interface Intuitiva** - Design moderno e fácil de usar
+
+### Backend (API)
+- ✅ **API REST** para produtos
+- ✅ **API de Autenticação** com JWT
+- ✅ **Upload de Arquivos** com validação
+- ✅ **CRUD Protegido** por autenticação
 - ✅ Filtros por categoria
 - ✅ Rate limiting
 - ✅ Headers de segurança
 - ✅ Logs de erro
 - ✅ CORS habilitado
+- ✅ Sanitização de inputs
 
 ## 🔒 Segurança
 

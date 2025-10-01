@@ -48,16 +48,26 @@ Antes de começar, certifique-se de ter:
 1. No cPanel, acesse **"phpMyAdmin"**
 2. Selecione o banco de dados criado no menu lateral esquerdo
 3. Clique na aba **"Import"** (Importar)
-4. Clique em **"Choose File"** e selecione o arquivo `database/schema.sql` do seu projeto
-5. Clique em **"Go"** (Executar)
-6. Aguarde a confirmação de sucesso
-7. Repita o processo para importar `database/seed.sql`
+4. Importe os seguintes arquivos **nesta ordem**:
+   - `database/schema.sql` - Cria tabelas de produtos e categorias
+   - `database/seed.sql` - Insere produtos de exemplo
+   - `database/admin_schema.sql` - **NOVO** Cria tabela de usuários admin
+5. Para cada arquivo:
+   - Clique em **"Choose File"** e selecione o arquivo
+   - Clique em **"Go"** (Executar)
+   - Aguarde a confirmação de sucesso
 
 **Alternativa via Terminal SSH (se disponível):**
 ```bash
 mysql -u usuario_ll_magazine_user -p usuario_ll_magazine_db < database/schema.sql
 mysql -u usuario_ll_magazine_user -p usuario_ll_magazine_db < database/seed.sql
+mysql -u usuario_ll_magazine_user -p usuario_ll_magazine_db < database/admin_schema.sql
 ```
+
+**Credenciais padrão do Painel Admin:**
+- **Usuário:** `admin`
+- **Senha:** `admin123`
+- **⚠️ IMPORTANTE:** Altere a senha após o primeiro acesso!
 
 ## 📁 Passo 2: Upload dos Arquivos
 
@@ -67,18 +77,20 @@ mysql -u usuario_ll_magazine_user -p usuario_ll_magazine_db < database/seed.sql
 
 Arquivos/pastas para fazer upload:
 ```
-✅ api/
-✅ assets/
-✅ database/ (opcional, apenas se quiser manter no servidor)
-✅ docs/ (opcional)
+✅ admin/            - **NOVO** Painel administrativo
+✅ api/              - APIs públicas e privadas
+✅ assets/           - CSS, JS, imagens
+✅ database/         - Scripts SQL (opcional)
+✅ docs/             - Documentação (opcional)
 ✅ 404.html
 ✅ 500.html
-✅ config.php
+✅ config.php        - **NOVO** Configurações do sistema
 ✅ index.html
-✅ .htaccess (se existir)
-✅ .env.example
-❌ .env (NÃO fazer upload - criar no servidor)
-❌ .git/ (NÃO fazer upload)
+✅ .htaccess         - Regras do Apache (se existir)
+✅ .env.example      - Template de variáveis
+❌ .env              - NÃO fazer upload - criar no servidor
+❌ .git/             - NÃO fazer upload
+❌ logs/             - NÃO fazer upload
 ```
 
 ### 2.2 Fazer Upload via FTP
@@ -113,11 +125,14 @@ Certifique-se de que as permissões estão corretas:
 ```
 Pastas: 755
 Arquivos: 644
+assets/images/products/: 775 (permitir upload pelo painel admin)
 ```
 
 No File Manager:
 1. Selecione pastas → Botão direito → **"Change Permissions"** → `755`
 2. Selecione arquivos PHP/HTML → Botão direito → **"Change Permissions"** → `644`
+3. **IMPORTANTE:** `assets/images/products/` → **"Change Permissions"** → `775`
+   - Isso permite que o painel admin faça upload de imagens
 
 ## 🔐 Passo 3: Configurar Variáveis de Ambiente
 
@@ -229,7 +244,22 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 4. Teste o filtro de categorias
 5. Teste o botão de compra pelo WhatsApp
 
-### 6.2 Testar a API
+### 6.2 Testar o Painel Administrativo
+
+1. Acesse: `https://seudominio.com.br/admin/login.html`
+2. Faça login com as credenciais padrão:
+   - **Usuário:** `admin`
+   - **Senha:** `admin123`
+3. Teste as funcionalidades:
+   - ✅ Visualizar lista de produtos
+   - ✅ Criar novo produto (com upload de imagem)
+   - ✅ Editar produto existente
+   - ✅ Marcar produto como destaque
+   - ✅ Excluir produto
+   - ✅ Alterar senha nas configurações
+4. **IMPORTANTE:** Altere a senha padrão em **Configurações** → **Alterar Senha**
+
+### 6.3 Testar a API
 
 Acesse diretamente os endpoints da API:
 
@@ -332,7 +362,27 @@ Se algo não funcionar:
 
 ### Adicionar Novos Produtos
 
-**Via phpMyAdmin:**
+**✨ Via Painel Admin (Recomendado):**
+
+1. Acesse: `https://seudominio.com.br/admin/`
+2. Faça login
+3. Clique em **"Novo Produto"**
+4. Preencha o formulário:
+   - **Nome do Produto**
+   - **Categoria** (selecione do dropdown)
+   - **Preço** (formato: 99,90)
+   - **Preço Original** e **Desconto** (opcional)
+   - **Imagem** - Clique em "Escolher Arquivo" e faça upload direto
+   - **Descrição**
+   - **Cores** - Digite nomes em português: `Vermelho, Azul, Branco`
+   - **Tamanhos** - Exemplo: `PP, P, M, G, GG`
+   - **Em Estoque** - Marque se disponível
+   - **Produto em Destaque** - Marque para aparecer no carrossel hero
+5. Clique em **"Salvar Produto"**
+
+**Cores disponíveis:** Preto, Branco, Vermelho, Azul, Verde, Amarelo, Rosa, Laranja, Roxo, Marrom, Nude, Coral, Vinho, Bordô, Dourado, Prateado, Bronze, e muitas outras!
+
+**Via phpMyAdmin (Método Alternativo):**
 
 1. Acesse phpMyAdmin no cPanel
 2. Selecione o banco de dados
@@ -346,7 +396,7 @@ Se algo não funcionar:
    - `discount`: Porcentagem ou `NULL`
    - `image`: Caminho da imagem
    - `description`: Descrição do produto
-   - `colors`: `["#FF0000", "#00FF00"]` (formato JSON)
+   - `colors`: `["#FF0000", "#00FF00"]` (formato JSON com códigos hex)
    - `sizes`: `["P", "M", "G"]` (formato JSON)
    - `in_stock`: `1` (em estoque) ou `0` (fora de estoque)
    - `featured`: `1` (destaque) ou `0` (normal)
@@ -370,20 +420,41 @@ Se precisar de ajuda técnica da GoDaddy:
 
 Antes de considerar o deploy completo, verifique:
 
-- [ ] Banco de dados criado e populado (schema.sql + seed.sql)
+### Backend
+- [ ] Banco de dados criado e populado (schema.sql + seed.sql + admin_schema.sql)
 - [ ] Arquivos enviados para `public_html/`
 - [ ] Arquivo `.env` criado e configurado com credenciais corretas
 - [ ] PHP 7.4+ ativo
 - [ ] **Extensões PHP habilitadas** (pdo, pdo_mysql, mysqli, mysqlnd, json, mbstring)
+- [ ] Permissões corretas (`assets/images/products/` = 775)
 - [ ] SSL/HTTPS ativo e forçado
+
+### Vitrine (Frontend)
 - [ ] Site acessível via HTTPS
 - [ ] **Produtos carregando do banco de dados** (verificar API: /api/products.php)
 - [ ] Filtros de categoria funcionando
 - [ ] Botão WhatsApp redirecionando corretamente
 - [ ] Imagens dos produtos carregando
 - [ ] Modal de produtos funcionando
+- [ ] Produtos em destaque aparecendo no carrossel hero
 - [ ] Responsividade testada (mobile/desktop)
+
+### Painel Admin
+- [ ] Login acessível (`/admin/login.html`)
+- [ ] Login funcionando com credenciais padrão
+- [ ] **Senha padrão alterada** (admin123 → nova senha segura)
+- [ ] Lista de produtos carregando
+- [ ] Criar produto funcionando
+- [ ] **Upload de imagem funcionando**
+- [ ] Editar produto funcionando
+- [ ] Excluir produto funcionando
+- [ ] Sistema de cores (nomes em português) funcionando
+- [ ] Marcar produto como destaque funcionando
+- [ ] Alteração de senha funcionando
+
+### Geral
 - [ ] Sem erros no Error Log do cPanel
+- [ ] Backup inicial criado (banco de dados + arquivos)
 
 ---
 
