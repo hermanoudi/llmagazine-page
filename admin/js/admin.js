@@ -258,12 +258,24 @@ function closeProductModal() {
     document.getElementById('productModal').classList.remove('active');
     document.getElementById('imagePreview').style.display = 'none';
     document.getElementById('productImageFile').value = '';
+    document.getElementById('fileNameDisplay').textContent = 'Nenhum arquivo selecionado';
+    document.getElementById('fileNameDisplay').style.color = '#666';
     editingProductId = null;
 }
 
 function handleImageSelect(e) {
     const file = e.target.files[0];
-    if (!file) return;
+
+    // Update file name display
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    if (file) {
+        fileNameDisplay.textContent = file.name;
+        fileNameDisplay.style.color = '#059669';
+    } else {
+        fileNameDisplay.textContent = 'Nenhum arquivo selecionado';
+        fileNameDisplay.style.color = '#666';
+        return;
+    }
 
     // Show preview
     const reader = new FileReader();

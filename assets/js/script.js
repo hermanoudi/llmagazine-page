@@ -224,9 +224,6 @@ function displayProducts() {
             <div class="product-image">
                 <img src="${product.image}" alt="${product.name}" loading="lazy">
                 ${product.discount ? `<div class="product-badge">${product.discount}% OFF</div>` : ''}
-                <button class="product-favorite" onclick="event.stopPropagation(); toggleFavorite(${product.id})">
-                    <i class="fas fa-heart"></i>
-                </button>
             </div>
             <div class="product-info">
                 <h3 class="product-name">${product.name}</h3>

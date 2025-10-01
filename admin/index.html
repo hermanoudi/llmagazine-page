@@ -161,7 +161,13 @@
 
                     <div class="form-group">
                         <label for="productImage">Imagem do Produto *</label>
-                        <input type="file" id="productImageFile" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/avif">
+                        <div class="custom-file-upload">
+                            <input type="file" id="productImageFile" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/avif" style="display: none;">
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('productImageFile').click()">
+                                <i class="fas fa-upload"></i> Escolher Arquivo
+                            </button>
+                            <span id="fileNameDisplay" style="margin-left: 10px; color: #666;">Nenhum arquivo selecionado</span>
+                        </div>
                         <input type="hidden" id="productImage" required>
                         <div id="imagePreview" style="margin-top: 10px; display: none;">
                             <img id="previewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #e5e7eb;">
