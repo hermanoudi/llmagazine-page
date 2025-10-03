@@ -8,13 +8,13 @@ Site responsivo para vitrine virtual de loja de roupas, desenvolvido com HTML5, 
 - **Identidade Visual**: Cores vermelha e branca conforme solicitado
 - **Integração WhatsApp**: Botões de compra direcionam para WhatsApp
 - **Vitrine Virtual**: Foco em apresentação de produtos, não e-commerce
-- **Otimizado para GoDaddy**: Configurações específicas para hospedagem
+- **Otimizado para Hostinger**: Configurações específicas para Single Web Hosting
 
 ## 🚀 Tecnologias Utilizadas
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
 - **Backend**: PHP 7.4+
-- **Hospedagem**: GoDaddy com HTTPS
+- **Hospedagem**: Hostinger (Single Web Hosting) com HTTPS
 - **Ícones**: Font Awesome 6.0
 - **Fontes**: Google Fonts (Inter)
 
@@ -59,8 +59,8 @@ ll-magazine/
 │   ├── admin_schema.sql   # Tabela de usuários admin
 │   └── setup.sh           # Script de setup automático
 └── docs/
-    ├── install_to_godaddy.md  # Guia de deploy
-    └── admin_guide.md         # Guia do painel admin
+    ├── install_to_hostinger.md  # Guia de deploy
+    └── admin_guide.md           # Guia do painel admin
 ```
 
 ## 📋 Requisitos do Sistema
@@ -73,11 +73,11 @@ ll-magazine/
 - **PIL/Pillow**: Para processamento de imagens
 - **Apache**: 2.4+ (opcional, para ambiente de produção)
 
-### Produção (GoDaddy)
+### Produção (Hostinger)
 - **PHP**: 7.4 ou superior
 - **MySQL**: 5.7+ ou superior
 - **Extensões PHP**: PDO, pdo_mysql habilitadas
-- **HTTPS**: Certificado SSL
+- **HTTPS**: Certificado SSL (incluso no plano)
 
 ### Instalação de Dependências
 
@@ -182,10 +182,10 @@ sudo systemctl reload apache2
 echo '127.0.0.1 ll-magazine.local' | sudo tee -a /etc/hosts
 ```
 
-### 2. Upload para GoDaddy
+### 2. Upload para Hostinger
 
 1. Faça upload de todos os arquivos para o diretório `public_html` do seu domínio
-2. Certifique-se de que o PHP está habilitado (versão 7.4 ou superior)
+2. Certifique-se de que o PHP está habilitado (versão 7.4 ou superior) no hPanel
 
 ### 3. Configuração do WhatsApp
 

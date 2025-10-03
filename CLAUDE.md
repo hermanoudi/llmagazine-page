@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LL Magazine is a responsive virtual storefront (vitrine virtual) for a clothing store. It's **not an e-commerce** - products redirect to WhatsApp for purchases. Built for GoDaddy hosting with red/white branding.
+LL Magazine is a responsive virtual storefront (vitrine virtual) for a clothing store. It's **not an e-commerce** - products redirect to WhatsApp for purchases. Built for Hostinger.com (Single Web Hosting) with red/white branding.
 
 ## Development Commands
 
@@ -158,19 +158,20 @@ All sensitive configuration is stored in `.env` (not committed to git):
 - Tablet: 768px - 1024px
 - Desktop: > 1024px
 
-## GoDaddy Deployment Notes
+## Hostinger Deployment Notes
 
 1. Upload all files to `public_html/` (except `.env` - create it on server)
 2. Create `.env` file on server with production credentials:
    - Copy `.env.example` to `.env`
    - Set `APP_ENV=production`
-   - Configure GoDaddy MySQL database credentials
+   - Configure Hostinger MySQL database credentials
    - Set production URL in `SITE_URL`
-3. Import database schema: `mysql -u username -p database_name < database/schema.sql`
-4. Import seed data: `mysql -u username -p database_name < database/seed.sql`
-5. Ensure PHP 7.4+ is enabled on GoDaddy
-6. SSL/HTTPS must be active (redirect configured in `.htaccess.old`)
-7. Verify `.env` is not accessible via web (should be blocked by server)
+3. Import database schema via phpMyAdmin: `database/schema.sql`
+4. Import seed data via phpMyAdmin: `database/seed.sql`
+5. Ensure PHP 7.4+ is enabled on Hostinger (hPanel)
+6. SSL/HTTPS must be active (redirect configured in `.htaccess`)
+7. Set directory permissions: `assets/images/products/` = 775, `logs/` = 777
+8. Verify `.env` is not accessible via web (should be blocked by server)
 
 ## Important Files
 

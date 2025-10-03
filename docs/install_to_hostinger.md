@@ -1,24 +1,24 @@
-# Guia de Deploy no GoDaddy
+# Guia de Deploy na Hostinger
 
-Este documento fornece instruções passo a passo para fazer o deploy do site LL Magazine na hospedagem GoDaddy.
+Este documento fornece instruções passo a passo para fazer o deploy do site LL Magazine na hospedagem Hostinger (Single Web Hosting).
 
 ## 📋 Pré-requisitos
 
 Antes de começar, certifique-se de ter:
 
-- [ ] Conta GoDaddy ativa com hospedagem contratada
-- [ ] Acesso ao cPanel da GoDaddy
-- [ ] Domínio configurado e apontando para o servidor GoDaddy
-- [ ] Certificado SSL ativo (HTTPS)
-- [ ] Cliente FTP (FileZilla, WinSCP, ou similar) ou acesso via File Manager do cPanel
+- [ ] Conta Hostinger ativa com plano Single Web Hosting contratado
+- [ ] Acesso ao hPanel da Hostinger
+- [ ] Domínio configurado e apontando para o servidor Hostinger
+- [ ] Certificado SSL ativo (incluso no plano Hostinger)
+- [ ] Cliente FTP (FileZilla, WinSCP, ou similar) ou acesso via File Manager do hPanel
 - [ ] MySQL Database disponível no plano de hospedagem
 
 ## 🗄️ Passo 1: Criar o Banco de Dados MySQL
 
-### 1.1 Acessar o MySQL Databases no cPanel
+### 1.1 Acessar o MySQL Databases no hPanel
 
-1. Faça login no **cPanel** da GoDaddy
-2. Localize e clique em **"MySQL Databases"** ou **"Bancos de Dados MySQL"**
+1. Faça login no **hPanel** da Hostinger
+2. Localize e clique em **"Databases"** → **"MySQL Databases"** ou **"Bancos de Dados MySQL"**
 
 ### 1.2 Criar Novo Banco de Dados
 
@@ -45,7 +45,7 @@ Antes de começar, certifique-se de ter:
 
 ### 1.5 Importar Schema e Dados
 
-1. No cPanel, acesse **"phpMyAdmin"**
+1. No hPanel, acesse **"Databases"** → **"phpMyAdmin"**
 2. Selecione o banco de dados criado no menu lateral esquerdo
 3. Clique na aba **"Import"** (Importar)
 4. Importe os seguintes arquivos **nesta ordem**:
@@ -54,7 +54,7 @@ Antes de começar, certifique-se de ter:
    - `database/admin_schema.sql` - **NOVO** Cria tabela de usuários admin
 5. Para cada arquivo:
    - Clique em **"Choose File"** e selecione o arquivo
-   - Clique em **"Go"** (Executar)
+   - Clique em **"Go"** ou **"Importar"**
    - Aguarde a confirmação de sucesso
 
 **Alternativa via Terminal SSH (se disponível):**
@@ -97,9 +97,9 @@ Arquivos/pastas para fazer upload:
 
 **Usando FileZilla ou similar:**
 
-1. Conecte-se ao servidor FTP da GoDaddy:
-   - Host: Seu domínio ou IP do servidor
-   - Usuário: Seu usuário FTP (fornecido pela GoDaddy)
+1. Conecte-se ao servidor FTP da Hostinger:
+   - Host: Seu domínio ou IP do servidor (disponível no hPanel)
+   - Usuário: Seu usuário FTP (fornecido pela Hostinger)
    - Senha: Sua senha FTP
    - Porta: 21 (ou 22 para SFTP)
 
@@ -107,9 +107,9 @@ Arquivos/pastas para fazer upload:
 
 3. Faça upload de todos os arquivos do projeto (exceto `.env` e `.git/`)
 
-**Usando File Manager do cPanel:**
+**Usando File Manager do hPanel:**
 
-1. Acesse **"File Manager"** no cPanel
+1. Acesse **"Files"** → **"File Manager"** no hPanel
 2. Navegue até `public_html/`
 3. Clique em **"Upload"**
 4. Selecione e envie todos os arquivos necessários
@@ -138,8 +138,8 @@ No File Manager:
 
 ### 3.1 Criar arquivo .env no servidor
 
-1. No **File Manager** do cPanel, navegue até `public_html/`
-2. Clique em **"+ File"** (Novo Arquivo)
+1. No **File Manager** do hPanel, navegue até `public_html/`
+2. Clique em **"New File"** ou **"Novo Arquivo"**
 3. Nome do arquivo: `.env`
 4. Clique com botão direito no `.env` → **"Edit"**
 
@@ -195,15 +195,15 @@ Crie ou edite o arquivo `.htaccess` na raiz do `public_html/`:
 
 ### 4.1 Verificar Versão do PHP
 
-1. No cPanel, acesse **"Select PHP Version"** ou **"MultiPHP Manager"**
-2. Certifique-se de que está usando **PHP 7.4 ou superior**
-3. Se necessário, altere a versão
+1. No hPanel, acesse **"Advanced"** → **"PHP Configuration"** ou **"Configuração PHP"**
+2. Certifique-se de que está usando **PHP 7.4 ou superior** (recomendado PHP 8.0+)
+3. Se necessário, altere a versão na lista suspensa
 
 ### 4.2 Habilitar Extensões PHP Necessárias ⚠️ IMPORTANTE
 
-No **"Select PHP Version"**, clique em **"PHP Extensions"** ou **"Extensions"**:
+No **"PHP Configuration"**, role até a seção **"PHP Extensions"**:
 
-**Marque as seguintes extensões (OBRIGATÓRIAS para o sistema funcionar):**
+**Certifique-se de que as seguintes extensões estão habilitadas (OBRIGATÓRIAS):**
 - ✅ `pdo` - **Obrigatório** para conexão com banco de dados
 - ✅ `pdo_mysql` - **Obrigatório** para MySQL via PDO
 - ✅ `mysqli` - **Obrigatório** para MySQL
@@ -211,7 +211,7 @@ No **"Select PHP Version"**, clique em **"PHP Extensions"** ou **"Extensions"**:
 - ✅ `json` - **Obrigatório** para API JSON
 - ✅ `mbstring` - **Obrigatório** para strings multibyte
 
-Clique em **"Save"** ou **"Apply"**
+**Nota:** Na Hostinger, a maioria dessas extensões já vem habilitada por padrão.
 
 **⚠️ Atenção:** Se `pdo_mysql` não estiver habilitado, os produtos NÃO aparecerão no site!
 
@@ -219,9 +219,10 @@ Clique em **"Save"** ou **"Apply"**
 
 ### 5.1 Ativar SSL
 
-1. No cPanel, acesse **"SSL/TLS Status"**
-2. Certifique-se de que o SSL está ativo para seu domínio
-3. Se não estiver, clique em **"Run AutoSSL"**
+1. No hPanel, acesse **"Security"** → **"SSL"**
+2. O certificado SSL gratuito já está incluso no plano Hostinger
+3. Certifique-se de que o SSL está ativo para seu domínio
+4. Se não estiver, clique em **"Install SSL"** ou **"Ativar SSL"**
 
 ### 5.2 Forçar HTTPS (Redirecionar HTTP → HTTPS)
 
@@ -271,7 +272,7 @@ Acesse diretamente os endpoints da API:
 
 Se algo não funcionar:
 
-1. No cPanel, acesse **"Errors"** ou **"Error Log"**
+1. No hPanel, acesse **"Advanced"** → **"Error Logs"**
 2. Verifique os últimos erros do Apache/PHP
 3. Ou verifique o arquivo `/logs/error.log` criado pelo sistema
 
@@ -293,7 +294,7 @@ Se algo não funcionar:
 
 **Solução:**
 1. Verifique permissões: pastas `755`, arquivos `644`
-2. Verifique o **Error Log** do cPanel
+2. Verifique o **Error Log** do hPanel (Advanced → Error Logs)
 3. Certifique-se de que o arquivo `.env` existe e está configurado corretamente
 4. Verifique se a versão do PHP é 7.4+
 
@@ -340,16 +341,16 @@ Se algo não funcionar:
 **Causa:** Extensão PDO MySQL não está habilitada no PHP
 
 **Solução:**
-1. Acesse **"Select PHP Version"** ou **"MultiPHP Manager"** no cPanel
-2. Clique em **"PHP Extensions"** ou **"Extensions"**
-3. Certifique-se de que as seguintes extensões estão **marcadas/habilitadas**:
+1. Acesse **"Advanced"** → **"PHP Configuration"** no hPanel
+2. Role até a seção **"PHP Extensions"**
+3. Certifique-se de que as seguintes extensões estão **habilitadas**:
    - ✅ `pdo`
    - ✅ `pdo_mysql`
    - ✅ `mysqli`
    - ✅ `mysqlnd`
-4. Clique em **"Save"** ou **"Apply"**
+4. Se necessário, ative as extensões e salve
 5. Aguarde alguns segundos e teste novamente o site
-6. Se o problema persistir, entre em contato com o suporte da GoDaddy
+6. Se o problema persistir, entre em contato com o suporte da Hostinger
 
 ## 📊 Pós-Deploy
 
@@ -384,7 +385,7 @@ Se algo não funcionar:
 
 **Via phpMyAdmin (Método Alternativo):**
 
-1. Acesse phpMyAdmin no cPanel
+1. Acesse phpMyAdmin no hPanel (**Databases** → **phpMyAdmin**)
 2. Selecione o banco de dados
 3. Clique na tabela `products`
 4. Clique em **"Insert"** (Inserir)
@@ -408,13 +409,14 @@ Se algo não funcionar:
 3. Salve o arquivo
 4. Limpe o cache do navegador e teste
 
-## 📞 Suporte GoDaddy
+## 📞 Suporte Hostinger
 
-Se precisar de ajuda técnica da GoDaddy:
+Se precisar de ajuda técnica da Hostinger:
 
-- **Chat Online:** Disponível no painel da GoDaddy
-- **Telefone:** 0800 721 8360 (Brasil)
-- **Documentação:** https://br.godaddy.com/help
+- **Chat Online 24/7:** Disponível no hPanel (canto inferior direito)
+- **Tutoriais:** https://support.hostinger.com/pt-BR/
+- **Base de Conhecimento:** Extensa documentação em português
+- **Suporte prioritário:** Incluso no plano Single Web Hosting
 
 ## ✨ Checklist Final
 
@@ -453,8 +455,9 @@ Antes de considerar o deploy completo, verifique:
 - [ ] Alteração de senha funcionando
 
 ### Geral
-- [ ] Sem erros no Error Log do cPanel
+- [ ] Sem erros no Error Log do hPanel
 - [ ] Backup inicial criado (banco de dados + arquivos)
+- [ ] Permissões de diretórios logs/ (777) configuradas
 
 ---
 

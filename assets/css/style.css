@@ -537,6 +537,11 @@ body {
     color: #dc2626;
 }
 
+.mobile-nav-item.active {
+    background-color: #dc2626;
+    color: #fff;
+}
+
 .mobile-nav-item i {
     font-size: 20px;
     width: 24px;

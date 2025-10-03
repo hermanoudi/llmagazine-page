@@ -66,13 +66,31 @@ function setupEventListeners() {
         }
     });
     
-    // Categories
+    // Categories (desktop)
     const categoryItems = document.querySelectorAll('.category-item');
     categoryItems.forEach(item => {
         item.addEventListener('click', function() {
             const category = this.dataset.category;
             filterProductsByCategory(category);
             updateActiveCategory(this);
+        });
+    });
+
+    // Categories (mobile menu)
+    const mobileCategoryItems = document.querySelectorAll('.mobile-category-item');
+    mobileCategoryItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const category = this.dataset.category;
+            filterProductsByCategory(category);
+            updateActiveMobileCategory(this);
+            closeMobileMenu();
+
+            // Scroll to products section
+            const productsSection = document.querySelector('.products');
+            if (productsSection) {
+                productsSection.scrollIntoView({ behavior: 'smooth' });
+            }
         });
     });
     
@@ -258,6 +276,12 @@ function filterProductsByCategory(category) {
 function updateActiveCategory(activeElement) {
     const categoryItems = document.querySelectorAll('.category-item');
     categoryItems.forEach(item => item.classList.remove('active'));
+    activeElement.classList.add('active');
+}
+
+function updateActiveMobileCategory(activeElement) {
+    const mobileCategoryItems = document.querySelectorAll('.mobile-category-item');
+    mobileCategoryItems.forEach(item => item.classList.remove('active'));
     activeElement.classList.add('active');
 }
 
