@@ -6,6 +6,12 @@ let authToken = null;
 let products = [];
 let editingProductId = null;
 
+// Pagination variables
+let currentPage = 1;
+let pageSize = 10;
+let totalProducts = 0;
+let totalPages = 0;
+
 document.addEventListener('DOMContentLoaded', function() {
     initializeAdmin();
 });
@@ -113,6 +119,19 @@ function setupEventListeners() {
     // Change password form
     document.getElementById('changePasswordForm').addEventListener('submit', handleChangePassword);
 
+    // Pagination controls
+    document.getElementById('pageSizeSelect').addEventListener('change', function() {
+        pageSize = parseInt(this.value);
+        currentPage = 1;
+        renderProductsTable();
+        renderPagination();
+    });
+
+    document.getElementById('btnFirstPage').addEventListener('click', () => goToPage(1));
+    document.getElementById('btnPrevPage').addEventListener('click', () => goToPage(currentPage - 1));
+    document.getElementById('btnNextPage').addEventListener('click', () => goToPage(currentPage + 1));
+    document.getElementById('btnLastPage').addEventListener('click', () => goToPage(totalPages));
+
     // Click outside modal to close
     document.getElementById('productModal').addEventListener('click', function(e) {
         if (e.target === this) {
@@ -167,7 +186,11 @@ async function loadProducts() {
 
         if (data.success) {
             products = data.products;
+            totalProducts = products.length;
+            totalPages = Math.ceil(totalProducts / pageSize);
+            currentPage = 1;
             renderProductsTable();
+            renderPagination();
         } else {
             showAlert('Erro ao carregar produtos: ' + data.error, 'error');
         }
@@ -176,6 +199,76 @@ async function loadProducts() {
         showAlert('Erro ao conectar com o servidor', 'error');
     } finally {
         showLoading(false);
+    }
+}
+
+// Pagination functions
+function goToPage(page) {
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderProductsTable();
+    renderPagination();
+}
+
+function renderPagination() {
+    totalPages = Math.ceil(totalProducts / pageSize);
+
+    // Update info text
+    const start = (currentPage - 1) * pageSize + 1;
+    const end = Math.min(currentPage * pageSize, totalProducts);
+    document.getElementById('paginationInfo').textContent =
+        `Exibindo ${start}-${end} de ${totalProducts} produtos`;
+
+    // Update navigation buttons state
+    document.getElementById('btnFirstPage').disabled = currentPage === 1;
+    document.getElementById('btnPrevPage').disabled = currentPage === 1;
+    document.getElementById('btnNextPage').disabled = currentPage === totalPages;
+    document.getElementById('btnLastPage').disabled = currentPage === totalPages;
+
+    // Generate page numbers
+    const pagesContainer = document.getElementById('paginationPages');
+    pagesContainer.innerHTML = '';
+
+    // Calculate which pages to show
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+
+    // Adjust if near the start or end
+    if (currentPage <= 3) {
+        endPage = Math.min(5, totalPages);
+    }
+    if (currentPage >= totalPages - 2) {
+        startPage = Math.max(1, totalPages - 4);
+    }
+
+    // Add first page and ellipsis if needed
+    if (startPage > 1) {
+        pagesContainer.innerHTML += `<button class="pagination-page" onclick="goToPage(1)">1</button>`;
+        if (startPage > 2) {
+            pagesContainer.innerHTML += `<span style="padding: 0 5px; color: #6b7280;">...</span>`;
+        }
+    }
+
+    // Add page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        const activeClass = i === currentPage ? 'active' : '';
+        pagesContainer.innerHTML += `<button class="pagination-page ${activeClass}" onclick="goToPage(${i})">${i}</button>`;
+    }
+
+    // Add last page and ellipsis if needed
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            pagesContainer.innerHTML += `<span style="padding: 0 5px; color: #6b7280;">...</span>`;
+        }
+        pagesContainer.innerHTML += `<button class="pagination-page" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+    }
+
+    // Hide pagination if only one page
+    const paginationContainer = document.getElementById('paginationContainer');
+    if (totalPages <= 1) {
+        paginationContainer.style.display = 'none';
+    } else {
+        paginationContainer.style.display = 'flex';
     }
 }
 
@@ -189,8 +282,13 @@ function renderProductsTable() {
         return;
     }
 
+    // Calculate pagination
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = Math.min(startIndex + pageSize, products.length);
+    const paginatedProducts = products.slice(startIndex, endIndex);
+
     // Render table (desktop view)
-    tbody.innerHTML = products.map(product => `
+    tbody.innerHTML = paginatedProducts.map(product => `
         <tr>
             <td>${product.id}</td>
             <td><img src="../${product.image}" alt="${product.name}" class="product-img" onerror="this.src='../assets/images/placeholder.jpg'"></td>
@@ -219,7 +317,7 @@ function renderProductsTable() {
     `).join('');
 
     // Render cards (mobile view)
-    cardsContainer.innerHTML = products.map(product => `
+    cardsContainer.innerHTML = paginatedProducts.map(product => `
         <div class="product-card-mobile">
             <div class="product-card-header">
                 <img src="../${product.image}" alt="${product.name}" onerror="this.src='../assets/images/placeholder.jpg'">
