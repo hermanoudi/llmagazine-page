@@ -14,8 +14,16 @@
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body class="admin-dashboard">
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo-text">
                 <h1>
@@ -86,6 +94,11 @@
                         <!-- Products will be loaded here -->
                     </tbody>
                 </table>
+
+                <!-- Mobile Cards View -->
+                <div class="products-cards" id="productsCards">
+                    <!-- Product cards will be loaded here for mobile -->
+                </div>
             </div>
         </div>
 

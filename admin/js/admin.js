@@ -59,6 +59,25 @@ async function verifyToken() {
 }
 
 function setupEventListeners() {
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        });
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+    }
+
     // Logout button
     document.getElementById('logoutBtn').addEventListener('click', function(e) {
         e.preventDefault();
@@ -72,6 +91,10 @@ function setupEventListeners() {
             e.preventDefault();
             const page = this.getAttribute('data-page');
             switchPage(page);
+
+            // Close mobile menu on navigation
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
         });
     });
 
@@ -158,12 +181,15 @@ async function loadProducts() {
 
 function renderProductsTable() {
     const tbody = document.getElementById('productsTableBody');
+    const cardsContainer = document.getElementById('productsCards');
 
     if (products.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Nenhum produto cadastrado</td></tr>';
+        cardsContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">Nenhum produto cadastrado</div>';
         return;
     }
 
+    // Render table (desktop view)
     tbody.innerHTML = products.map(product => `
         <tr>
             <td>${product.id}</td>
@@ -190,6 +216,34 @@ function renderProductsTable() {
                 </button>
             </td>
         </tr>
+    `).join('');
+
+    // Render cards (mobile view)
+    cardsContainer.innerHTML = products.map(product => `
+        <div class="product-card-mobile">
+            <div class="product-card-header">
+                <img src="../${product.image}" alt="${product.name}" onerror="this.src='../assets/images/placeholder.jpg'">
+                <div class="product-card-info">
+                    <h3>${product.name}</h3>
+                    <div class="product-card-meta">
+                        <span class="badge badge-warning">${getCategoryName(product.category)}</span>
+                        ${product.inStock
+                            ? '<span class="badge badge-success">Em estoque</span>'
+                            : '<span class="badge badge-danger">Esgotado</span>'}
+                        ${product.featured ? '<i class="fas fa-star" style="color: #fbbf24;"></i>' : ''}
+                    </div>
+                    <div class="product-card-price">R$ ${product.price}</div>
+                </div>
+            </div>
+            <div class="product-card-footer">
+                <button class="btn btn-sm btn-primary" onclick="editProduct(${product.id})">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteProduct(${product.id})">
+                    <i class="fas fa-trash"></i> Excluir
+                </button>
+            </div>
+        </div>
     `).join('');
 }
 
