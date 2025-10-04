@@ -2,7 +2,7 @@
 
 // Configuration (will be loaded from API)
 let CONFIG = {
-    whatsappNumber: '5534991738581',
+    whatsappNumber: '',
     whatsappMessage: 'Olá! Gostaria de saber mais sobre este produto da LL Magazine:',
     apiUrl: 'api/products.php',
     siteName: 'LL Magazine'

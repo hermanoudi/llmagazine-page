@@ -7,7 +7,7 @@ INSERT INTO `categories` (`id`, `name`, `icon`, `display_order`) VALUES
 ('looks', 'Looks', 'fas fa-tshirt', 1),
 ('masculino', 'Masculino', 'fas fa-tshirt', 2),
 ('feminino', 'Feminino', 'fas fa-female', 3),
-('presentes', 'Presentes', 'fa fa-gift', 4),
+('acessorios', 'Acessórios', 'fa fa-shopping-bag', 4),
 ('infantil', 'Infantil', 'fa fa-child', 5);
 
 -- Insert products
@@ -66,7 +66,7 @@ INSERT INTO `products` (`name`, `category`, `price`, `original_price`, `discount
 ),
 (
     'Batom Avon Nude Terracota',
-    'presentes',
+    'acessorios',
     '89,90',
     NULL,
     NULL,

@@ -50,7 +50,7 @@ if (!defined('SITE_URL')) define('SITE_URL', 'http://localhost:8080');
 if (!defined('SITE_EMAIL')) define('SITE_EMAIL', 'contato@llmagazine.com');
 
 // WhatsApp Configuration
-if (!defined('WHATSAPP_NUMBER')) define('WHATSAPP_NUMBER', '5534991738581');
+if (!defined('WHATSAPP_NUMBER')) define('WHATSAPP_NUMBER', '');
 if (!defined('WHATSAPP_MESSAGE')) define('WHATSAPP_MESSAGE', 'Olá! Gostaria de saber mais sobre este produto da LL Magazine:');
 
 // Environment

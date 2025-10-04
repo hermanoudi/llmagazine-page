@@ -351,7 +351,7 @@ function getCategoryName(category) {
         'masculino': 'Masculino',
         'feminino': 'Feminino',
         'infantil': 'Infantil',
-        'presentes': 'Presentes'
+        'acessorios': 'Acessórios'
     };
     return categories[category] || category;
 }
