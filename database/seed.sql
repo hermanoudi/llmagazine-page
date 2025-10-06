@@ -3,12 +3,13 @@
 
 -- Insert categories
 INSERT INTO `categories` (`id`, `name`, `icon`, `display_order`) VALUES
-('all', 'Todos os Produtos', 'fas fa-tshirt', 0),
+('all', 'Todos os Produtos', 'fa fa-camera', 0),
 ('looks', 'Looks', 'fas fa-tshirt', 1),
 ('masculino', 'Masculino', 'fas fa-tshirt', 2),
 ('feminino', 'Feminino', 'fas fa-female', 3),
 ('acessorios', 'Acessórios', 'fa fa-shopping-bag', 4),
-('infantil', 'Infantil', 'fa fa-child', 5);
+('infantil', 'Infantil', 'fa fa-child', 5),
+('cosmeticos', 'Cosméticos', 'fa-solid fa-spa', 6);
 
 -- Insert products
 INSERT INTO `products` (`name`, `category`, `price`, `original_price`, `discount`, `image`, `description`, `colors`, `sizes`, `in_stock`, `featured`) VALUES

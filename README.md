@@ -233,7 +233,40 @@ As cores principais estão definidas no CSS:
 Edite o array `$products` em `api/products.php` para adicionar/remover produtos.
 
 ### Categorias
-Modifique o array `$categories` em `api/products.php` para alterar as categorias.
+**As categorias são completamente dinâmicas!** Não é necessário editar código - basta adicionar no banco de dados.
+
+#### Como adicionar uma nova categoria:
+
+**Método 1: SQL Direto**
+```sql
+INSERT INTO categories (id, name, icon, display_order)
+VALUES ('sua_categoria', 'Nome da Categoria', 'fas fa-icon', 8);
+```
+
+**Método 2: Via phpMyAdmin (Hostinger)**
+1. Acesse phpMyAdmin no hPanel
+2. Selecione banco `ll_magazine_db`
+3. Abra tabela `categories` → Inserir
+4. Preencha: `id`, `name`, `icon` (Font Awesome), `display_order`
+
+**Método 3: Script de Migração**
+```bash
+# Crie arquivo database/add_nova_categoria.sql
+INSERT INTO `categories` (`id`, `name`, `icon`, `display_order`)
+VALUES ('nova_cat', 'Nova Categoria', 'fas fa-star', 8)
+ON DUPLICATE KEY UPDATE name='Nova Categoria';
+
+# Execute
+mysql -u root -p ll_magazine_db < database/add_nova_categoria.sql
+```
+
+A categoria aparecerá **automaticamente** em:
+- ✅ Menu desktop da vitrine
+- ✅ Menu mobile
+- ✅ Formulário do painel admin
+
+**Ícones**: Use classes Font Awesome (https://fontawesome.com/icons)
+**Exemplo**: `fas fa-spa`, `fa-solid fa-star`, `fas fa-tshirt`
 
 ## 📱 Funcionalidades
 
@@ -253,7 +286,7 @@ Modifique o array `$categories` em `api/products.php` para alterar as categorias
 - ✅ **Upload de Imagens** - Upload direto pelo painel (JPG, PNG, GIF, WEBP, AVIF)
 - ✅ **Sistema de Cores** - Nomes de cores em português (50+ cores)
 - ✅ **Produtos em Destaque** - Exibidos no carrossel hero
-- ✅ **Categorização** - Looks, Masculino, Feminino, Infantil, Presentes
+- ✅ **Categorização Dinâmica** - Categorias carregadas do banco de dados automaticamente
 - ✅ **Controle de Estoque** - Marcar produtos como disponíveis/esgotados
 - ✅ **Descontos** - Sistema de preço original e desconto
 - ✅ **Alteração de Senha** - Trocar senha do administrador

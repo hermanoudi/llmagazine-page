@@ -11,6 +11,7 @@ let CONFIG = {
 // Global variables
 let products = [];
 let filteredProducts = [];
+let categories = [];
 let currentCategory = 'all';
 let cartCount = 0;
 
@@ -32,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function initializeApp() {
     await loadConfig();
+    await loadCategories();
     await loadProducts();
     setupEventListeners();
     setupHeroCarousel();
@@ -52,6 +54,56 @@ async function loadConfig() {
     }
 }
 
+// Load categories from API
+async function loadCategories() {
+    try {
+        const response = await fetch('api/products.php?categories=1');
+        if (response.ok) {
+            categories = await response.json();
+            renderCategories();
+        }
+    } catch (error) {
+        console.error('Failed to load categories:', error);
+    }
+}
+
+// Render categories dynamically
+function renderCategories() {
+    const categoriesScroll = document.getElementById('categoriesScroll');
+    const mobileNav = document.getElementById('mobileNav');
+
+    if (!categoriesScroll || !mobileNav) return;
+
+    // Clear existing categories
+    categoriesScroll.innerHTML = '';
+    mobileNav.innerHTML = '';
+
+    // Render desktop categories
+    categories.forEach((category, index) => {
+        const categoryItem = document.createElement('div');
+        categoryItem.className = 'category-item' + (index === 0 ? ' active' : '');
+        categoryItem.dataset.category = category.id;
+        categoryItem.innerHTML = `
+            <i class="${category.icon}"></i>
+            <span>${category.name}</span>
+        `;
+        categoriesScroll.appendChild(categoryItem);
+    });
+
+    // Render mobile categories
+    categories.forEach((category, index) => {
+        const mobileItem = document.createElement('a');
+        mobileItem.href = '#';
+        mobileItem.className = 'mobile-nav-item mobile-category-item' + (index === 0 ? ' active' : '');
+        mobileItem.dataset.category = category.id;
+        mobileItem.innerHTML = `
+            <i class="${category.icon}"></i>
+            <span>${category.name}</span>
+        `;
+        mobileNav.appendChild(mobileItem);
+    });
+}
+
 // Event Listeners
 function setupEventListeners() {
     // Mobile menu
@@ -66,33 +118,36 @@ function setupEventListeners() {
         }
     });
     
-    // Categories (desktop)
-    const categoryItems = document.querySelectorAll('.category-item');
-    categoryItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const category = this.dataset.category;
+    // Categories (desktop) - Event delegation for dynamic elements
+    categoriesScroll.addEventListener('click', function(e) {
+        const categoryItem = e.target.closest('.category-item');
+        if (categoryItem) {
+            const category = categoryItem.dataset.category;
             filterProductsByCategory(category);
-            updateActiveCategory(this);
-        });
+            updateActiveCategory(categoryItem);
+        }
     });
 
-    // Categories (mobile menu)
-    const mobileCategoryItems = document.querySelectorAll('.mobile-category-item');
-    mobileCategoryItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const category = this.dataset.category;
-            filterProductsByCategory(category);
-            updateActiveMobileCategory(this);
-            closeMobileMenu();
+    // Categories (mobile menu) - Event delegation for dynamic elements
+    const mobileNavElement = document.getElementById('mobileNav');
+    if (mobileNavElement) {
+        mobileNavElement.addEventListener('click', function(e) {
+            const mobileCategoryItem = e.target.closest('.mobile-category-item');
+            if (mobileCategoryItem) {
+                e.preventDefault();
+                const category = mobileCategoryItem.dataset.category;
+                filterProductsByCategory(category);
+                updateActiveMobileCategory(mobileCategoryItem);
+                closeMobileMenu();
 
-            // Scroll to products section
-            const productsSection = document.querySelector('.products');
-            if (productsSection) {
-                productsSection.scrollIntoView({ behavior: 'smooth' });
+                // Scroll to products section
+                const productsSection = document.querySelector('.products');
+                if (productsSection) {
+                    productsSection.scrollIntoView({ behavior: 'smooth' });
+                }
             }
         });
-    });
+    }
     
     // Hero indicators
     const indicators = document.querySelectorAll('.indicator');

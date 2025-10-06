@@ -134,10 +134,48 @@ All sensitive configuration is stored in `.env` (not committed to git):
 3. **Images**: Place in `assets/images/products/` with exact filename from database
 
 ### Categories System
-- Defined in `categories` table in MySQL database
-- Categories: `all`, `looks`, `masculino`, `feminino`, `infantil`, `presentes`
-- Each category has: `id`, `name`, `icon`, `display_order`
-- Filter logic: Client-side in `filterProductsByCategory()`
+- **Dynamic loading**: Categories are loaded from database via API (`/api/products/categories`)
+- **Storage**: Defined in `categories` table in MySQL database
+- **Structure**: Each category has: `id`, `name`, `icon`, `display_order`
+- **Current categories**: `all`, `looks`, `masculino`, `feminino`, `infantil`, `acessorios`, `cosmeticos`
+- **Rendering**: Frontend dynamically renders category menus (desktop & mobile)
+- **Admin**: Category select dropdown is populated automatically from database
+- **Filter logic**: Client-side in `filterProductsByCategory()`
+
+#### Adding New Categories
+Categories are fully dynamic - simply add to the database and they appear automatically in:
+- ✅ Desktop category menu
+- ✅ Mobile category menu
+- ✅ Admin product form (category select)
+
+**Method 1: SQL Direct Insert**
+```sql
+INSERT INTO categories (id, name, icon, display_order)
+VALUES ('your_category', 'Display Name', 'fas fa-icon-name', 7);
+```
+
+**Method 2: Migration Script**
+Create a file like `database/add_category.sql`:
+```sql
+INSERT INTO `categories` (`id`, `name`, `icon`, `display_order`)
+VALUES ('your_category', 'Display Name', 'fas fa-icon-name', 7)
+ON DUPLICATE KEY UPDATE
+    `name` = 'Display Name',
+    `icon` = 'fas fa-icon-name',
+    `display_order` = 7;
+```
+Then run: `mysql -u root -p ll_magazine_db < database/add_category.sql`
+
+**Method 3: phpMyAdmin (Hostinger)**
+1. Access phpMyAdmin
+2. Select `ll_magazine_db` database
+3. Click `categories` table → Insert
+4. Fill fields: `id`, `name`, `icon`, `display_order`
+5. Save
+
+**Icon Reference**: Use Font Awesome classes (e.g., `fas fa-spa`, `fa-solid fa-star`) - see https://fontawesome.com/icons
+
+**Note**: The `all` category is used as the default filter and should not be removed
 
 ### Database Schema
 - **Tables**: `categories`, `products`

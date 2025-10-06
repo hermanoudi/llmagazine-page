@@ -46,6 +46,14 @@ if ($method === 'GET') {
         exit();
     }
 
+    // Check for categories endpoint
+    if (isset($_GET['categories'])) {
+        // Return all categories
+        $categories = getCategories($pdo);
+        echo json_encode($categories, JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
     if (isset($pathParts[2]) && $pathParts[2] === 'categories') {
         // Get categories
         $categories = getCategories($pdo);
@@ -200,7 +208,11 @@ function getProductById($pdo, $id) {
 }
 
 function getCategories($pdo) {
-    $sql = "SELECT id, name, icon FROM categories ORDER BY display_order ASC";
+    $sql = "SELECT DISTINCT c.id, c.name, c.icon, c.display_order
+            FROM categories c
+            LEFT JOIN products p ON c.id = p.category
+            WHERE c.id = 'all' OR (p.id IS NOT NULL AND p.in_stock = 1)
+            ORDER BY c.display_order ASC";
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
 
