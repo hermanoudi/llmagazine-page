@@ -48,8 +48,10 @@ if ($method === 'GET') {
 
     // Check for categories endpoint
     if (isset($_GET['categories'])) {
-        // Return all categories
-        $categories = getCategories($pdo);
+        // Return categories
+        // If admin=1, return all categories; otherwise only categories with products in stock
+        $includeEmpty = isset($_GET['admin']) && $_GET['admin'] == '1';
+        $categories = getCategories($pdo, $includeEmpty);
         echo json_encode($categories, JSON_UNESCAPED_UNICODE);
         exit();
     }
@@ -207,12 +209,21 @@ function getProductById($pdo, $id) {
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-function getCategories($pdo) {
-    $sql = "SELECT DISTINCT c.id, c.name, c.icon, c.display_order
-            FROM categories c
-            LEFT JOIN products p ON c.id = p.category
-            WHERE c.id = 'all' OR (p.id IS NOT NULL AND p.in_stock = 1)
-            ORDER BY c.display_order ASC";
+function getCategories($pdo, $includeEmpty = false) {
+    if ($includeEmpty) {
+        // Admin mode: return ALL categories
+        $sql = "SELECT id, name, icon, display_order
+                FROM categories
+                ORDER BY display_order ASC";
+    } else {
+        // Frontend mode: return only categories with products in stock
+        $sql = "SELECT DISTINCT c.id, c.name, c.icon, c.display_order
+                FROM categories c
+                LEFT JOIN products p ON c.id = p.category
+                WHERE c.id = 'all' OR (p.id IS NOT NULL AND p.in_stock = 1)
+                ORDER BY c.display_order ASC";
+    }
+
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
 

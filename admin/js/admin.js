@@ -178,7 +178,8 @@ function logout() {
 // Categories Management
 async function loadCategories() {
     try {
-        const response = await fetch('../api/products.php?categories=1');
+        // Use admin=1 to get ALL categories, including those without products
+        const response = await fetch('../api/products.php?categories=1&admin=1');
         if (response.ok) {
             categories = await response.json();
             populateCategorySelect();
